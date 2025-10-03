@@ -1,0 +1,46 @@
+name: "Node setup with cache & install"
+description: "Checks out code (optional), sets up Node, restores cache, installs deps"
+inputs:
+  node-version:
+    description: "Node.js version"
+    required: false
+    default: "18"
+  checkout:
+    description: "Whether to checkout code"
+    required: false
+    default: "true"
+  working-directory:
+    description: "Folder to run npm ci in"
+    required: false
+    default: "."
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      if: ${{ inputs.checkout == 'true' }}
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Cache Node modules
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ inputs.working-directory }}/node_modules
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ inputs.node-version }}-
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
