@@ -1,10 +1,8 @@
 name: Frontend Continuous Deployment
-
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -13,9 +11,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
+          cache: npm
       - run: npm install
-
       - run: npm run lint
 
   test:
@@ -25,9 +22,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
+          cache: npm
       - run: npm install
-
       - run: npm test -- --ci --watchAll=false
 
   build_and_push:
@@ -45,10 +41,7 @@ jobs:
       - uses: aws-actions/amazon-ecr-login@v2
       - name: Build & Push image
         run: |
-          docker build \
-            --build-arg REACT_APP_MOVIE_API_URL=${{ secrets.REACT_APP_MOVIE_API_URL }} \
-            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_FRONTEND }}:${{ github.sha }} \
-            .
+          docker build --build-arg REACT_APP_MOVIE_API_URL=${{ secrets.REACT_APP_MOVIE_API_URL }} -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_FRONTEND }}:${{ github.sha }} .
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_FRONTEND }}:${{ github.sha }}
 
   deploy:
