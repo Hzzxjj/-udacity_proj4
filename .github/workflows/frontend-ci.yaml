@@ -14,7 +14,8 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-      - run: npm ci
+      - run: npm install
+
       - run: npm run lint
 
   test:
@@ -25,7 +26,8 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-      - run: npm ci
+      - run: npm install
+
       - run: npm test -- --ci --watchAll=false
 
   build:
@@ -37,6 +39,7 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-      - run: npm ci
+      - run: npm install
+
       - name: Build (Docker)
         run: docker build -t movie-frontend-ci:${{ github.sha }} .
